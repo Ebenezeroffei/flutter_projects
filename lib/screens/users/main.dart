@@ -1,20 +1,32 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tuts/screens/users/components.dart';
+import 'package:path_provider/path_provider.dart';
 import './extend_widgets.dart';
 
 class UsersRegister extends StatelessWidget {
   const UsersRegister({Key? key}) : super(key: key);
 
   Future<List<dynamic>> loadUsers() async {
-    return await rootBundle.loadStructuredData(
-      'assets/docs/users_list.json',
-      (value) async {
-        return await jsonDecode(value);
-      },
-    );
+    String filePath =
+        "${(await getApplicationDocumentsDirectory()).path}/users_list.json";
+    File file = File(filePath);
+    if (await file.exists()) {
+      // Load users if any
+      // TODO: remove the users variable
+      List users = await file.readAsString().then((value) => jsonDecode(value));
+      // print(users);
+      return users;
+    } else {
+      // create file
+      file.create().then(
+            (value) => value.writeAsString('[]'),
+          );
+      return [];
+    }
   }
 
   @override
@@ -31,7 +43,7 @@ class UsersRegister extends StatelessWidget {
       ),
       body: Container(
         padding:
-            const EdgeInsets.only(top: 30, bottom: 20, left: 20, right: 20),
+            const EdgeInsets.only(top: 30, bottom: 20, left: 10, right: 10),
         child: FutureBuilder<List<dynamic>>(
           future: loadUsers(),
           builder: (context, snapshot) {
@@ -70,7 +82,47 @@ class UsersRegister extends StatelessWidget {
                     ),
                   );
                 default:
-                  return Text("Data is available");
+                  List<Widget> usersListWidget = [];
+                  for (Map user in users) {
+                    usersListWidget.add(Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Card(
+                        elevation: 3,
+                        shadowColor: Colors.black54,
+                        child: ListTile(
+                          title: Text(
+                            user['name'],
+                          ),
+                          subtitle: Text(user['email']),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.pending),
+                                splashRadius: 35,
+                              ),
+                              IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.home),
+                                splashRadius: 35,
+                              ),
+                            ],
+                          ),
+                          onTap: () {},
+                        ),
+                      ),
+                    ));
+                  }
+                  return CustomScrollView(
+                    slivers: [
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                            childCount: usersListWidget.length,
+                            (context, int index) => usersListWidget[index]),
+                      ),
+                    ],
+                  );
               }
             } else {
               return const Align(

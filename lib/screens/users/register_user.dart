@@ -22,41 +22,50 @@ class _RegisterUserState extends State<RegisterUser> {
       TextEditingController(text: 'eoffei@outlook.com');
   final TextEditingController _descriptionController = TextEditingController();
   bool _isLoading = false;
+  String _filePath = "";
+  final List _usersEmails = [];
+  int _usersCount = 0;
 
   @override
   void initState() {
     super.initState();
-  }
-
-  Future<bool> isEmailUnique(String email) async {
-    String fileData =
-        await rootBundle.loadString('assets/docs/users_list.json');
-    List users = await jsonDecode(fileData);
-    if (users.isNotEmpty) {
-      return false;
-    }
-    return true;
-  }
-
-  Future<List> getUsers() async {
-    return await rootBundle.loadStructuredData('assets/docs/users_list.json',
-        (value) {
-      return jsonDecode(value);
+    getApplicationDocumentsDirectory().then((value) {
+      _filePath = "${value.path}/users_list.json";
+      File file = File(_filePath);
+      file.readAsString().then((value) {
+        List users = jsonDecode(value);
+        if (users.isNotEmpty) {
+          _usersCount = users.length;
+          for (Map user in users) {
+            _usersEmails.add(user['email']);
+          }
+        }
+      });
     });
   }
 
   Future<void> saveUser(user) async {
-    List users = await getUsers();
+    File file = File(_filePath);
+    // Get all users
+    String fileData = await file.readAsString();
+    List users = jsonDecode(fileData);
     users.add(user);
-    String encodedUsersData = jsonEncode(users);
-    File('../assets/docs/users_list.json')
-        .writeAsString(encodedUsersData)
-        .then((value) async {
-      Navigator.pushNamed(context, '/users-register');
+    // Save user
+    file.writeAsString(jsonEncode(users)).then((value) async {
+      // Go to users page
+      Navigator.pushReplacementNamed(context, '/users-register');
     }).onError((error, stackTrace) {
-      print(error);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("There app has encounted an error. Try again later.")));
+      // Show error while saving
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text("There was a problem saving the user into the database"),
+          duration: Duration(
+            seconds: 1,
+            milliseconds: 50,
+          ),
+        ),
+      );
     });
   }
 
@@ -68,32 +77,21 @@ class _RegisterUserState extends State<RegisterUser> {
       // await Future.delayed(Duration(seconds: 2));
       // TODO: Validate input daata
       if (_formKey.currentState!.validate()) {
-        String name = _nameController.text;
-        String email = _emailController.text;
-        String description = _descriptionController.text;
-        if (await isEmailUnique(email)) {
-          Map<String, dynamic> user = {
-            'name': name,
-            'email': email,
-            'description': description,
-          };
-          // await saveUser(user);
-          // print(await File('components.dart').exists());
-          print((await getApplicationDocumentsDirectory()).path);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("The email is not unique."),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
+        // String name = _nameController.text;
+        // String email = _emailController.text;
+        // String description = _descriptionController.text;
+        Map<String, dynamic> user = {
+          'name': _nameController.text,
+          'email': _emailController.text,
+          'description': _descriptionController.text,
+          'id': _usersCount + 1
+        };
+        saveUser(user);
       }
       setState(() {
         _isLoading = false;
       });
     } catch (e) {
-      print(e);
       setState(() {
         _isLoading = false;
       });
@@ -137,8 +135,12 @@ class _RegisterUserState extends State<RegisterUser> {
                 controller: _emailController,
                 helperText: "Enter your email, eg. someone@you.com",
                 validator: (value) {
+                  value = value?.trim();
                   if (!value!.isValidEmail) {
                     return "Enter a valid email.";
+                  }
+                  if (value.emailNotUnique(_usersEmails)) {
+                    return "The email entered has been taken by another user";
                   }
                   return null;
                 },

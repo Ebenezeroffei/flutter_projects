@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 extension ExtendTextWidget on Widget {
   centerText() {
@@ -26,5 +30,9 @@ extension FormValidators on String {
     RegExp validEmailRegexp =
         RegExp(r'^[a-zA-Z][a-zA-Z\d]+@[a-z]+\.[a-z]{3,}(\.[a-z]{2,})?(\s+)?$');
     return validEmailRegexp.hasMatch(this);
+  }
+
+  bool emailNotUnique(List emails) {
+    return emails.contains(this);
   }
 }
