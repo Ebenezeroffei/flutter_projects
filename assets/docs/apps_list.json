@@ -1,0 +1,14 @@
+[
+    {
+        "appName": "Show Open Apps",
+        "appRoute": "/show-open-apps"
+    },
+    {
+        "appName": "Temperature Converter",
+        "appRoute": "/temperature-converter"
+    },
+    {
+        "appName": "Users Register",
+        "appRoute": "/users-register"
+    }
+]
