@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,7 +25,6 @@ class _RegisterUserState extends State<RegisterUser> {
   bool _isLoading = false;
   String _filePath = "";
   final List _usersEmails = [];
-  int _usersCount = 0;
 
   @override
   void initState() {
@@ -35,7 +35,6 @@ class _RegisterUserState extends State<RegisterUser> {
       file.readAsString().then((value) {
         List users = jsonDecode(value);
         if (users.isNotEmpty) {
-          _usersCount = users.length;
           for (Map user in users) {
             _usersEmails.add(user['email']);
           }
@@ -80,11 +79,12 @@ class _RegisterUserState extends State<RegisterUser> {
         // String name = _nameController.text;
         // String email = _emailController.text;
         // String description = _descriptionController.text;
+        int userId = Random().nextInt(9999);
         Map<String, dynamic> user = {
           'name': _nameController.text,
           'email': _emailController.text,
           'description': _descriptionController.text,
-          'id': _usersCount + 1
+          'id': userId,
         };
         saveUser(user);
       }

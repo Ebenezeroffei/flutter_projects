@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tuts/screens/users/components.dart';
+import 'package:flutter_tuts/screens/users/utils.dart';
 import 'package:path_provider/path_provider.dart';
 import './extend_widgets.dart';
 
@@ -27,6 +29,51 @@ class UsersRegister extends StatelessWidget {
           );
       return [];
     }
+  }
+
+  void deleteUser(BuildContext context, int userId) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text(
+              "Delete User",
+            ),
+            content: const Text("Are you sure you want to delete this user?"),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            actions: <TextButton>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                child: const Text("Yes"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context, false);
+                },
+                child: const Text("No"),
+              ),
+            ],
+          );
+        }).then((value) async {
+      if (value) {
+        // print("Delete user");
+        List users = await getUsers();
+        for (Map user in users) {
+          if (user['id'] == userId) {
+            users = users.where((element) => element['id'] != userId).toList();
+          }
+        }
+        // Write file
+        String filepath =
+            "${(await getApplicationDocumentsDirectory()).path}/users_list.json";
+        File(filepath).writeAsString(jsonEncode(users)).then((value) async {
+          Navigator.popAndPushNamed(context, '/users-register');
+        });
+      }
+    });
   }
 
   @override
@@ -99,13 +146,16 @@ class UsersRegister extends StatelessWidget {
                             children: <Widget>[
                               IconButton(
                                 onPressed: () {},
-                                icon: const Icon(Icons.pending),
+                                icon: const Icon(Icons.edit),
                                 splashRadius: 35,
+                                color: Colors.blue,
                               ),
                               IconButton(
-                                onPressed: () {},
-                                icon: const Icon(Icons.home),
+                                onPressed: () =>
+                                    deleteUser(context, user['id']),
+                                icon: const Icon(Icons.delete),
                                 splashRadius: 35,
+                                color: Colors.red,
                               ),
                             ],
                           ),
