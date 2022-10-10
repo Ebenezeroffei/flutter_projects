@@ -1,52 +1,26 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:provider/provider.dart';
+import '../../providers/temperature_converter_provider.dart';
 
-class TemperatureConverter extends StatefulWidget {
+class TemperatureConverter extends StatelessWidget {
   const TemperatureConverter({Key? key}) : super(key: key);
 
   @override
-  State<TemperatureConverter> createState() => _TemperatureConverterState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<TemperatureConverterProvider>(
+      create: (_) => TemperatureConverterProvider(),
+      child: _TemperatureConverterState(),
+    );
+  }
 }
 
-class _TemperatureConverterState extends State<TemperatureConverter> {
+class _TemperatureConverterState extends StatelessWidget {
   final TextEditingController inputController = TextEditingController();
-  bool inputHasText = false;
   final TextStyle defaultTextStyle = const TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w500,
     color: Colors.black87,
   );
-  double celsius = 0.00;
-  double kelvin = 0.00;
-  double fahrenheit = 0.00;
-
-  void onTextChanged(String value) {
-    setState(() {
-      if (value.isNotEmpty) {
-        inputHasText = true;
-        celsius = double.parse(double.parse(value).toStringAsFixed(2));
-        kelvin =
-            double.parse((double.parse(value) * 274.15).toStringAsFixed(2));
-        fahrenheit =
-            double.parse((double.parse(value) * 33.80).toStringAsFixed(2));
-      } else {
-        inputHasText = false;
-        celsius = 0.00;
-        kelvin = 0.00;
-        fahrenheit = 0.00;
-      }
-    });
-  }
-
-  void clearInputText() {
-    inputController.clear();
-    setState(() {
-      inputHasText = false;
-      celsius = 0.00;
-      kelvin = 0.00;
-      fahrenheit = 0.00;
-    });
-  }
 
   Widget temperatureType(String type, double value) {
     return Padding(
@@ -70,7 +44,7 @@ class _TemperatureConverterState extends State<TemperatureConverter> {
                 fontSize: 30,
                 fontWeight: FontWeight.w400,
                 color: Colors.black54,
-                letterSpacing: -2,
+                letterSpacing: -1,
               ),
             ),
           )),
@@ -98,17 +72,22 @@ class _TemperatureConverterState extends State<TemperatureConverter> {
             controller: inputController,
             textInputAction: TextInputAction.done,
             keyboardType: TextInputType.number,
-            onChanged: (value) => onTextChanged(value),
+            onChanged: (value) => context
+                .read<TemperatureConverterProvider>()
+                .onTextChanged(value),
             decoration: InputDecoration(
-              suffixIcon: inputHasText
-                  ? IconButton(
-                      icon: const Icon(Icons.close),
-                      splashRadius: 15,
-                      splashColor: const Color.fromARGB(149, 255, 82, 82),
-                      color: Colors.red,
-                      onPressed: clearInputText,
-                    )
-                  : null,
+              suffixIcon:
+                  context.read<TemperatureConverterProvider>().inputHasText
+                      ? IconButton(
+                          icon: const Icon(Icons.close),
+                          splashRadius: 15,
+                          splashColor: const Color.fromARGB(149, 255, 82, 82),
+                          color: Colors.red,
+                          onPressed: () => context
+                              .read<TemperatureConverterProvider>()
+                              .clearInputText(inputController),
+                        )
+                      : null,
               contentPadding:
                   const EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
               enabledBorder: OutlineInputBorder(
@@ -127,9 +106,12 @@ class _TemperatureConverterState extends State<TemperatureConverter> {
               style: defaultTextStyle,
             ),
           ),
-          temperatureType("Celsius", celsius),
-          temperatureType("Kelvin", kelvin),
-          temperatureType("Fahrenheit", fahrenheit),
+          temperatureType(
+              "Celsius", context.watch<TemperatureConverterProvider>().celsius),
+          temperatureType(
+              "Kelvin", context.watch<TemperatureConverterProvider>().kelvin),
+          temperatureType("Fahrenheit",
+              context.watch<TemperatureConverterProvider>().fahrenheit),
         ],
       ),
     );

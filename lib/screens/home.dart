@@ -43,7 +43,10 @@ class _HomeState extends State<Home> {
         child: ListTile(
           title: Text(appName),
           onTap: () async {
-            Navigator.pushNamed(context, routeName);
+            Navigator.pushNamed(
+              context,
+              routeName,
+            );
           },
         ),
       ),

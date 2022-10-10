@@ -10,5 +10,9 @@
     {
         "appName": "Users Register",
         "appRoute": "/users-register"
+    },
+    {
+        "appName": "Provider App",
+        "appRoute": "/provider-app"
     }
 ]

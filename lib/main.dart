@@ -6,11 +6,11 @@ void main() => runApp(_MyApp());
 class _MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: "Flutter Tutorials",
       debugShowCheckedModeBanner: false,
-      routes: getRoutes(context),
       initialRoute: '/',
+      onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
 }
