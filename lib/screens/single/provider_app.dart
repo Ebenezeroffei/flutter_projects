@@ -40,6 +40,7 @@ class HomePage extends StatelessWidget {
                     color: value.isNegative ? Colors.red : Colors.black54),
               ),
             ),
+            CountPage(),
           ],
         ),
       ),
@@ -72,6 +73,18 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class CountPage extends StatelessWidget {
+  const CountPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      "${context.watch<Counter>().count}",
+      style: Theme.of(context).textTheme.headlineSmall,
     );
   }
 }

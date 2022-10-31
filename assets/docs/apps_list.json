@@ -14,5 +14,9 @@
     {
         "appName": "Provider App",
         "appRoute": "/provider-app"
+    },
+    {
+        "appName": "Dogicon",
+        "appRoute": "/dogicon"
     }
 ]

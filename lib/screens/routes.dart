@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tuts/screens/dogicon/sub_breeds.dart';
+import 'package:flutter_tuts/screens/dogicon/favourites.dart';
+import 'package:flutter_tuts/screens/dogicon/main.dart';
 import 'package:flutter_tuts/screens/home.dart';
 import 'package:flutter_tuts/screens/single/provider_app.dart';
 import 'package:flutter_tuts/screens/users/main.dart';
@@ -25,10 +28,23 @@ class RouteGenerator {
         return goTo(const RegisterUser());
       case '/provider-app':
         return goTo(const ProviderApp());
+      case '/dogicon':
+        return goTo(const DogiconApp());
+      case '/dogicon/favourites':
+        Object? fav = settings.arguments;
+        if (fav is List) {
+          return goTo(DogiconFavourites(fav));
+        }
+        return _errorRoute();
+      case '/dogicon/sub-breeds':
+        Object? breed = settings.arguments;
+        if (breed is String) {
+          return goTo(DogiconSubBreeds(breed));
+        }
+        return _errorRoute();
       default:
         return _errorRoute();
     }
-    return MaterialPageRoute(builder: (_) => Container());
   }
 
   static Route _errorRoute() {

@@ -74,7 +74,6 @@ class _RegisterUserState extends State<RegisterUser> {
         _isLoading = true; // Form is loading
       });
       // await Future.delayed(Duration(seconds: 2));
-      // TODO: Validate input daata
       if (_formKey.currentState!.validate()) {
         // String name = _nameController.text;
         // String email = _emailController.text;
